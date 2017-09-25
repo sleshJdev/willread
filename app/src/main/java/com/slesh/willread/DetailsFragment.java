@@ -9,13 +9,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
 
 
 public class DetailsFragment extends Fragment {
@@ -30,15 +28,27 @@ public class DetailsFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         Log.d("app", "onViewCreated");
+        FileInputStream in = null;
         try {
-            FileInputStream in = new FileInputStream(new File(getActivity().getCacheDir(), "history"));
-            FileChannel channel = in.getChannel();
-            ByteBuffer buffer = ByteBuffer.allocate(1024);
-            while (channel.read(buffer) != -1) {
-            };
-            channel.close();
+            in = new FileInputStream(new File(getActivity().getCacheDir(), "history"));
+            byte[] buffer = new byte[1024];
+            int read;
+            StringBuilder history = new StringBuilder();
+            if ((read = in.read(buffer)) != -1) {
+                history.append(new String(buffer, 0, read));
+            }
+            TextView historyDetails = getActivity().findViewById(R.id.historyDetails);
+            historyDetails.setText(history.toString());
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 

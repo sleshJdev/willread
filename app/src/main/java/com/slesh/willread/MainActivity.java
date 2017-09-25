@@ -1,23 +1,33 @@
 package com.slesh.willread;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+
+import com.slesh.willread.db.BookmarkRepository;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
+
+import javax.inject.Inject;
 
 public class MainActivity extends AppCompatActivity {
 
+    @Inject
+    public BookmarkRepository bookmarkRepository;
+
     public static final String EXTRA_MESSAGE = "by.slesh.willread.MESSAGE";
     public static final String HISTORY = "history";
+
+    private AppComponent appComponent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,11 +41,17 @@ public class MainActivity extends AppCompatActivity {
         getSupportFragmentManager().beginTransaction()
                 .add(R.id.fragmentContainer, activeFragment)
                 .commit();
+
+    }
+
+    public void openBookmarks(View view) {
+        Intent intent = new Intent(this, DisplayMessageActivity.class);
+        startActivity(intent);
     }
 
     public void save(View saveButton) {
         EditText editText = findViewById(R.id.editText);
-        FileOutputStream out = null;
+        FileOutputStream out;
         try {
             out = new FileOutputStream(new File(getCacheDir().getPath(), "history"), true);
             out.write(getHistory().getBytes());
@@ -71,12 +87,16 @@ public class MainActivity extends AppCompatActivity {
 
     private void cleanHistory() {
         getPreferences(MODE_PRIVATE).edit().putStringSet(HISTORY, new HashSet<>()).apply();
+        if (new File(getCacheDir(), HISTORY).delete()) {
+            Log.d("app", "history file was removed");
+        }
     }
 
     private void updateHistory() {
-        ActiveFragment activeFragment = (ActiveFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.fragmentContainer);
-        activeFragment.updateHistory();
+        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragmentContainer);
+        if (fragment instanceof ActiveFragment) {
+            ((ActiveFragment) fragment).updateHistory();
+        }
     }
 
     public void next(View nextButton) {
@@ -89,4 +109,9 @@ public class MainActivity extends AppCompatActivity {
                 .commit();
     }
 
+    @Override
+    protected void onDestroy() {
+        bookmarkRepository.close();
+        super.onDestroy();
+    }
 }

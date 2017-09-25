@@ -78,4 +78,15 @@
 
     </FrameLayout>
 
+    <Button
+        android:id="@+id/openBookmarks"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="8dp"
+        android:onClick="openBookmarks"
+        android:text="@string/bookmarks_text"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editText" />
+
 </android.support.constraint.ConstraintLayout>

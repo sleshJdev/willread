@@ -7,4 +7,7 @@
     <string name="add_text">Add</string>
     <string name="removeText">Remove</string>
     <string name="save_text">Save</string>
+    <string name="link_text">Link</string>
+    <string name="title_text">Name</string>
+    <string name="bookmarks_text">Bookmarks</string>
 </resources>
